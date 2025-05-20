@@ -12,23 +12,16 @@ public class PlayerMovement : MonoBehaviour
     void Awake()
     {
         rigid = GetComponentInParent<Rigidbody2D>();
-        animator = GetComponentInParent<Animator>(); // ⬅️ key fix
+        animator = GetComponentInParent<Animator>(); 
         jumpScript = GetComponentInChildren<PlayerJump>();
-
-        if (animator == null)
-            Debug.LogWarning("Animator not found in parent! Assign manually.");
     }
-
 
     void FixedUpdate()
     {
         direction = Input.GetAxis("Horizontal");
-
         bool isMoving = direction != 0;
         bool isGrounded = jumpScript != null && jumpScript.GetIsGrounded();
-
         animator.SetBool("IsWalking", isMoving && isGrounded);
-
         if (isMoving && rigid != null)
         {
             rigid.velocity = new Vector2(direction * speed, rigid.velocity.y);

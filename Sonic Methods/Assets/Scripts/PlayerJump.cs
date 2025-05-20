@@ -13,16 +13,6 @@ public class PlayerJump : MonoBehaviour
 
     private float playerHalfHeight;
 
-    private void Awake()
-    {
-        // Auto-assign if null
-        if (rb == null) rb = GetComponentInParent<Rigidbody2D>();
-        if (animator == null) animator = GetComponentInParent<Animator>();
-        if (spriteRenderer == null) spriteRenderer = GetComponentInParent<Transform>()
-                                                        .Find("Sprite")
-                                                        .GetComponent<SpriteRenderer>();
-    }
-
     private void Start()
     {
         playerHalfHeight = spriteRenderer.bounds.extents.y;
