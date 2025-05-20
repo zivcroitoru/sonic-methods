@@ -2,52 +2,54 @@
 
 public class PlayerJump : MonoBehaviour
 {
-    public float jumpSpeed = 100;
-    private bool isJumping = false;
-    private Rigidbody2D rigid;
-    private Animator _animator;
-    public static bool isGrounded = true;
-    [SerializeField] private bool debugIsGrounded;
+    [Header("Jump Settings")]
+    [SerializeField] private float jumpForce = 6f;
+    [SerializeField] private LayerMask groundLayer;
 
-    private void OnEnable()
+    [Header("References (set in Inspector or auto-assigned)")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private Animator animator;
+
+    private float playerHalfHeight;
+
+    private void Awake()
     {
-        SC_Floor.OnFloorCollision += OnFloorCollision;
+        // Auto-assign if null
+        if (rb == null) rb = GetComponentInParent<Rigidbody2D>();
+        if (animator == null) animator = GetComponentInParent<Animator>();
+        if (spriteRenderer == null) spriteRenderer = GetComponentInParent<Transform>()
+                                                        .Find("Sprite")
+                                                        .GetComponent<SpriteRenderer>();
     }
 
-    private void OnDisable()
+    private void Start()
     {
-        SC_Floor.OnFloorCollision -= OnFloorCollision;
-    }
-
-    void Awake()
-    {
-        _animator = GetComponent<Animator>();
-        rigid = GetComponent<Rigidbody2D>();
-    }
-
-    private void Jump()
-    {
-        if (!isJumping && isGrounded)
-        {
-            rigid.AddForce(new Vector2(0, jumpSpeed));
-            isJumping = true;
-            isGrounded = false;
-            _animator.SetBool("IsWalking", false);
-            _animator.SetBool("IsInAir", true);
-        }
+        playerHalfHeight = spriteRenderer.bounds.extents.y;
     }
 
     private void Update()
     {
-        debugIsGrounded = isGrounded;
-        if (Input.GetKeyDown(KeyCode.Space))
+        bool grounded = GetIsGrounded();
+        animator.SetBool("IsInAir", !grounded);
+
+        if (grounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("Jumping!");
             Jump();
+        }
     }
 
-    private void OnFloorCollision()
+    public bool GetIsGrounded()
     {
-        isGrounded = true;
-        isJumping = false;
-        _animator.SetBool("IsInAir", false);
+        Vector2 origin = spriteRenderer.transform.position;
+        float rayLength = playerHalfHeight + 0.1f;
+        return Physics2D.Raycast(origin, Vector2.down, rayLength, groundLayer);
+    }
+
+    private void Jump()
+    {
+        animator.SetBool("IsInAir", true);
+        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
     }
 }

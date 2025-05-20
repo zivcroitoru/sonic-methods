@@ -1,27 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     private float direction;
-    public float speed = 5;
+    public float speed = 5f;
+
     private Rigidbody2D rigid;
-    private Animator _animator;
+    private Animator animator;
+    private PlayerJump jumpScript;
 
     void Awake()
     {
-        rigid = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
+        rigid = GetComponentInParent<Rigidbody2D>();
+        animator = GetComponentInParent<Animator>(); // ⬅️ key fix
+        jumpScript = GetComponentInChildren<PlayerJump>();
+
+        if (animator == null)
+            Debug.LogWarning("Animator not found in parent! Assign manually.");
     }
+
 
     void FixedUpdate()
     {
         direction = Input.GetAxis("Horizontal");
-        _animator.SetBool("IsInAir", !PlayerJump.isGrounded);
-        _animator.SetBool("IsWalking", direction != 0 && PlayerJump.isGrounded);
 
-        if (direction != 0 && rigid != null)
+        bool isMoving = direction != 0;
+        bool isGrounded = jumpScript != null && jumpScript.GetIsGrounded();
+
+        animator.SetBool("IsWalking", isMoving && isGrounded);
+
+        if (isMoving && rigid != null)
         {
             rigid.velocity = new Vector2(direction * speed, rigid.velocity.y);
             transform.localScale = new Vector3(direction > 0 ? 1 : -1, 1, 1);
