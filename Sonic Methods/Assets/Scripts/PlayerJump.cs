@@ -6,10 +6,14 @@ public class PlayerJump : MonoBehaviour
     [SerializeField] private float jumpForce = 6f;
     [SerializeField] private LayerMask groundLayer;
 
-    [Header("References (set in Inspector or auto-assigned)")]
+    [Header("References")]
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Animator animator;
+
+    [Header("Friction Materials")]
+    public PhysicsMaterial2D normalFriction;
+    public PhysicsMaterial2D zeroFriction;
 
     private float playerHalfHeight;
 
